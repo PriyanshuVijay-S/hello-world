@@ -47,6 +47,7 @@ class SharedState(BaseSharedState):
     def setup(self) -> None:
         """Set up."""
         super().setup()
+       
         HelloWorldAbciApp.event_to_timeout[
             Event.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
@@ -60,6 +61,7 @@ class HelloWorldParams(BaseParams):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters."""
+        self.owner = self._ensure("owner", kwargs, str)  # Ensure that 'owner_address' is passed and is of type str
         self.hello_world_string: str = self._ensure("hello_world_message", kwargs, str)
         super().__init__(*args, **kwargs)
 
