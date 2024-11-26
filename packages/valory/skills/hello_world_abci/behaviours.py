@@ -34,7 +34,9 @@ from packages.valory.skills.hello_world_abci.payloads import (
     RegistrationPayload,
     ResetPayload,
     SelectKeeperPayload,
+    PrintCountUpdatePayload, # New payload for updating the print count
 )
+
 from packages.valory.skills.hello_world_abci.rounds import (
     CollectRandomnessRound,
     HelloWorldAbciApp,
@@ -43,6 +45,7 @@ from packages.valory.skills.hello_world_abci.rounds import (
     ResetAndPauseRound,
     SelectKeeperRound,
     SynchronizedData,
+    PrintCountUpdateRound,  # New round for print count increment
 )
 
 
@@ -203,6 +206,21 @@ class PrintMessageBehaviour(HelloWorldABCIBaseBehaviour, ABC):
         yield from self.send_a2a_transaction(payload)
         yield from self.wait_until_round_end()
 
+        self.set_done()
+
+# New Behaviour for print count
+class PrintCountBehaviour(HelloWorldABCIBaseBehaviour):
+    """Behaviour to handle increment and display of print count."""
+
+    matching_round = PrintCountUpdateRound
+
+    def async_act(self) -> Generator:
+        current_count = self.synchronized_data.print_count
+        new_count = current_count + 1
+        self.context.logger.info(f"The message has been printed {new_count} times.")
+        payload = PrintCountUpdatePayload(self.context.agent_address, new_count)
+        yield from self.send_a2a_transaction(payload)
+        yield from self.wait_until_round_end()
         self.set_done()
 
 

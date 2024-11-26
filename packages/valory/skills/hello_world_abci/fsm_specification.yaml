@@ -1,32 +1,35 @@
 alphabet_in:
-- DONE
-- NONE
-- NO_MAJORITY
-- RESET_TIMEOUT
-- ROUND_TIMEOUT
+  - DONE
+  - NONE
+  - NO_MAJORITY
+  - RESET_TIMEOUT
+  - ROUND_TIMEOUT
 default_start_state: RegistrationRound
 final_states: []
 label: HelloWorldAbciApp
 start_states:
-- RegistrationRound
+  - RegistrationRound
 states:
-- CollectRandomnessRound
-- PrintMessageRound
-- RegistrationRound
-- ResetAndPauseRound
-- SelectKeeperRound
+  - CollectRandomnessRound
+  - PrintMessageRound
+  - RegistrationRound
+  - ResetAndPauseRound
+  - SelectKeeperRound
+  - PrintCountUpdateRound
 transition_func:
-    (CollectRandomnessRound, DONE): SelectKeeperRound
-    (CollectRandomnessRound, NONE): CollectRandomnessRound
-    (CollectRandomnessRound, NO_MAJORITY): CollectRandomnessRound
-    (CollectRandomnessRound, ROUND_TIMEOUT): CollectRandomnessRound
-    (PrintMessageRound, DONE): ResetAndPauseRound
-    (PrintMessageRound, ROUND_TIMEOUT): RegistrationRound
-    (RegistrationRound, DONE): CollectRandomnessRound
-    (ResetAndPauseRound, DONE): CollectRandomnessRound
-    (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
-    (ResetAndPauseRound, RESET_TIMEOUT): RegistrationRound
-    (SelectKeeperRound, DONE): PrintMessageRound
-    (SelectKeeperRound, NONE): RegistrationRound
-    (SelectKeeperRound, NO_MAJORITY): RegistrationRound
-    (SelectKeeperRound, ROUND_TIMEOUT): RegistrationRound
+  (CollectRandomnessRound, DONE): SelectKeeperRound
+  (CollectRandomnessRound, NONE): CollectRandomnessRound
+  (CollectRandomnessRound, NO_MAJORITY): CollectRandomnessRound
+  (CollectRandomnessRound, ROUND_TIMEOUT): CollectRandomnessRound
+  (PrintMessageRound, DONE): PrintCountUpdateRound
+  (PrintCountUpdateRound, DONE): ResetAndPauseRound
+  (PrintCountUpdateRound, ROUND_TIMEOUT): RegistrationRound
+  (RegistrationRound, DONE): CollectRandomnessRound
+  (ResetAndPauseRound, DONE): CollectRandomnessRound
+  (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
+  (ResetAndPauseRound, RESET_TIMEOUT): RegistrationRound
+  (SelectKeeperRound, DONE): PrintMessageRound
+  (SelectKeeperRound, NONE): RegistrationRound
+  (SelectKeeperRound, NO_MAJORITY): RegistrationRound
+  (SelectKeeperRound, ROUND_TIMEOUT): RegistrationRound
+  (PrintMessageRound, ROUND_TIMEOUT): RegistrationRound

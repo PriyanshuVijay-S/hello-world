@@ -39,6 +39,7 @@ from packages.valory.skills.hello_world_abci.payloads import (
     RegistrationPayload,
     ResetPayload,
     SelectKeeperPayload,
+    PrintCountUpdatePayload,  # Make sure to import your new payload
 )
 
 
@@ -60,6 +61,9 @@ class SynchronizedData(
 
     This state is replicated by the Tendermint application.
     """
+    def __init__(self):
+        super().__init__()
+        self.print_count = 0  # Initialize print_count
 
     @property
     def printed_messages(self) -> List[str]:
@@ -146,6 +150,16 @@ class PrintMessageRound(CollectDifferentUntilAllRound, HelloWorldABCIAbstractRou
             return synchronized_data, Event.DONE
         return None
 
+class PrintCountUpdateRound(CollectSameUntilThresholdRound, HelloWorldABCIAbstractRound):
+    """Round to update the print count."""
+    payload_class = PrintCountUpdatePayload
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        if self.collection_threshold_reached:
+            # Calculate the new print count from the payloads
+            new_print_count = max(payload.new_count for payload in self.collection.values())
+            synchronized_data = self.synchronized_data.update(print_count=new_print_count)
+            return synchronized_data, Event.DONE
+        return None
 
 class ResetAndPauseRound(CollectSameUntilThresholdRound, HelloWorldABCIAbstractRound):
     """A round that represents that consensus is reached (the final round)"""
@@ -188,7 +202,10 @@ class HelloWorldAbciApp(AbciApp[Event]):
         3. PrintMessageRound
             - done: 4.
             - round timeout: 0.
-        4. ResetAndPauseRound
+        4. PrintCountUpdateRound  # Newly added to manage print count updates
+            - done: 5.
+            - round timeout: 0.
+        5. ResetAndPauseRound
             - done: 1.
             - no majority: 0.
             - reset timeout: 0.
@@ -218,6 +235,10 @@ class HelloWorldAbciApp(AbciApp[Event]):
             Event.ROUND_TIMEOUT: RegistrationRound,
         },
         PrintMessageRound: {
+            Event.DONE: PrintCountUpdateRound,  # Now leads to PrintCountUpdateRound
+            Event.ROUND_TIMEOUT: RegistrationRound,
+        },
+        PrintCountUpdateRound: {  # Handle transitions from PrintCountUpdateRound
             Event.DONE: ResetAndPauseRound,
             Event.ROUND_TIMEOUT: RegistrationRound,
         },

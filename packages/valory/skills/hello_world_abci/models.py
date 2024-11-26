@@ -43,6 +43,7 @@ class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
     abci_app_cls = HelloWorldAbciApp
+    print_count = 0  # Initialize the print count variable in the shared state
 
     def setup(self) -> None:
         """Set up."""
@@ -55,6 +56,10 @@ class SharedState(BaseSharedState):
             self.context.params.reset_pause_duration + MARGIN
         )
 
+    def increment_print_count(self):
+        """Increment the print count and return the new value."""
+        self.print_count += 1
+        return self.print_count
 
 class HelloWorldParams(BaseParams):
     """Hello World skill parameters."""
